@@ -34,45 +34,416 @@
         <h1>
 <a name="node-ipc" class="anchor" href="#node-ipc"><span class="octicon octicon-link"></span></a>node-ipc</h1>
 
-<p><em>a nodejs module for local and remote Inter Process Communication</em></p>
+<p><em>a nodejs module for local and remote Inter Process Communication</em> for Linux, Mac and Windows.</p>
 
-<p><strong>npm install node-ipc</strong></p>
+<p><strong>npm install node-ipc</strong><br><a href="https://npmjs.org/package/event-pubsub" title="node-ipc details from npm"><img src="https://nodei.co/npm/node-ipc.png?stars=true" alt="alt node-ipc npm details" title="node-ipc npm module details "></a></p>
 
-<p><em>this is a new project so more documentation will come</em></p>
+<p>Package details websites :</p>
 
-<hr><h4>
+<ul>
+<li>
+<a href="http://riaevangelist.github.io/node-ipc/" title="node-ipc documentation">GitHub.io site</a>. A prettier version of this site.</li>
+<li>
+<a href="https://www.npmjs.org/package/node-ipc" title="node-ipc npm module">NPM Module</a>. The npm page for the node-ipc module.</li>
+</ul><hr><h4>
 <a name="types-of-ipc-sockets" class="anchor" href="#types-of-ipc-sockets"><span class="octicon octicon-link"></span></a>Types of IPC Sockets</h4>
 
 <table>
 <thead><tr>
 <th>Type</th>
+<th>Stability</th>
 <th>Definition</th>
 </tr></thead>
 <tbody>
 <tr>
 <td>Unix Socket</td>
-<td>Gives lightning fast communication and avoids the network card to reduce overhead and latency. <a href="https://github.com/RIAEvangelist/node-ipc/tree/master/example/unixSocket/" title="Unix Socket Node IPC examples">Local Unix Socket examples </a>
+<td>Stable</td>
+<td>Gives Linux and Mac lightning fast communication and avoids the network card to reduce overhead and latency. <a href="https://github.com/RIAEvangelist/node-ipc/tree/master/example/unixSocket/" title="Unix Socket Node IPC examples">Local Unix Socket examples </a>
 </td>
 </tr>
 <tr>
 <td>TCP Socket</td>
+<td>Stable</td>
 <td>Gives the most reliable communication across the network. Can be used for local IPC as well, but is slower than #1's Unix Socket Implementation because TCP sockets go through the network card while Unix Sockets do not. <a href="https://github.com/RIAEvangelist/node-ipc/tree/master/example/TCPSocket/" title="TCP Socket Node IPC examples">Local or remote network TCP Socket examples </a>
 </td>
 </tr>
 <tr>
 <td>TLS Socket</td>
+<td>Alpha</td>
 <td><strong><em>coming soon...</em></strong></td>
 </tr>
 <tr>
 <td>UDP Sockets</td>
+<td>Stable</td>
 <td>Gives the <strong>fastest network communication</strong>. UDP is less reliable but much faster than TCP. It is best used for streaming non critical data like sound, video, or multiplayer game data as it can drop packets depending on network connectivity and other factors. UDP can be used for local IPC as well, but is slower than #1's Unix Socket Implementation because UDP sockets go through the network card while Unix Sockets do not. <a href="https://github.com/RIAEvangelist/node-ipc/tree/master/example/UDPSocket/" title="UDP Socket Node IPC examples">Local or remote network UDP Socket examples </a>
 </td>
 </tr>
 </tbody>
-</table><hr><h3>
-<a name="ipc-default-variables" class="anchor" href="#ipc-default-variables"><span class="octicon octicon-link"></span></a>IPC Default Variables</h3>
+</table><table>
+<thead><tr>
+<th>OS</th>
+<th>Supported Sockets</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Linux</td>
+<td>Unix, TCP, TLS, UDP</td>
+</tr>
+<tr>
+<td>Mac</td>
+<td>Unix, TCP, TLS, UDP</td>
+</tr>
+<tr>
+<td>Win</td>
+<td>TCP, TLS, UDP</td>
+</tr>
+</tbody>
+</table><p><strong>Windows</strong> users may want to use UDP servers for the fastest local IPC. Unix Servers are the fastest oprion on Linux and Mac, but not available for windows.  </p>
 
-<p><code>ipc.config</code>  </p>
+<hr><h4>
+<a name="ipc-methods" class="anchor" href="#ipc-methods"><span class="octicon octicon-link"></span></a>IPC Methods</h4>
+
+<p>These methods are available in the IPC Scope.  </p>
+
+<hr><h5>
+<a name="log" class="anchor" href="#log"><span class="octicon octicon-link"></span></a>log</h5>
+
+<p><code>ipc.log(a,b,c,d,e...);</code>  </p>
+
+<p>ipc.log will accept any number of arguments and if <code>ipc.config.silent</code> is not set, it will concat them all with a sincle space ' ' between them and then log them to the console. This is fast because it prevents any concation from happening if the ipc is set to silent. That way if you leave your logging in place it should not effect performance.</p>
+
+<p>the log also supports <a href="https://github.com/Marak/colors.js">colors</a> implementation. All of the available styles are supported and the theme styles are as follows :</p>
+
+<pre><code>{
+    good    : 'green',
+    notice  : 'yellow',
+    warn    : 'red',
+    error   : 'redBG',
+    debug   : 'magenta',
+    variable: 'cyan',
+    data    : 'blue'
+}    
+</code></pre>
+
+<p>You can override any of these settings by requireing colors and setting the theme as follows :</p>
+
+<pre><code>var colors=require('colors');
+
+colors.setTheme(
+    {
+        good    : 'zebra',
+        notice  : 'redBG',
+        ...
+    }    
+);
+</code></pre>
+
+<hr><h5>
+<a name="connectto" class="anchor" href="#connectto"><span class="octicon octicon-link"></span></a>connectTo</h5>
+
+<p><code>ipc.connectTo(id,path,callback);</code>  </p>
+
+<p>Used for connecting as a client to local Unix Sockets. <strong><em>This is the fastst way for processes on the same machine to communicate</em></strong> because it bypasses the network card which TCP and UDP must both use.</p>
+
+<table>
+<thead><tr>
+<th>variable</th>
+<th>required</th>
+<th>definition</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>required</td>
+<td>is the string id of the socket being connected to. The socket with this id is added to the ipc.of object when created.</td>
+</tr>
+<tr>
+<td>path</td>
+<td>optional</td>
+<td>is the path of the Unix Domain Socket File, if not set this will be defaylted to <code>ipc.config.socketRoot</code>+<code>ipc.config.appspace</code>+<code>id</code>
+</td>
+</tr>
+<tr>
+<td>callback</td>
+<td>optional</td>
+<td>this is the function to execute when the socket has been created.</td>
+</tr>
+</tbody>
+</table><p><strong>examples</strong> arguments can be ommitted solong as they are still in order.</p>
+
+<pre><code>ipc.connectTo('world');
+</code></pre>
+
+<p>or using just an id and a callback</p>
+
+<pre><code>ipc.connectTo(
+    'world',
+    function(){
+        ipc.of.world.on(
+            'hello',
+            function(data){
+                ipc.log(data.debug); 
+                //if data was a string, it would have the color set to the debug style applied to it
+            }
+        )
+    }
+);
+</code></pre>
+
+<p>or explicitly setting the path</p>
+
+<pre><code>ipc.connectTo(
+    'world',
+    'myapp.world'
+);
+</code></pre>
+
+<p>or explicitly setting the path with callback</p>
+
+<pre><code>ipc.connectTo(
+    'world',
+    'myapp.world',
+    function(){
+        ...
+    }
+);
+</code></pre>
+
+<hr><h5>
+<a name="connecttonet" class="anchor" href="#connecttonet"><span class="octicon octicon-link"></span></a>connectToNet</h5>
+
+<p><code>ipc.connectToNet(id,host,port,callback)</code>  </p>
+
+<p>Used to connect as a client to a TCP or TLS socket via the network card. This can be local or remote, if local, it is recommended that you use the Unix Socket Implementaion of <code>connectTo</code> instead as it is much faster since it avoids the network card alltogether.</p>
+
+<table>
+<thead><tr>
+<th>variable</th>
+<th>required</th>
+<th>definition</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>required</td>
+<td>is the string id of the socket being connected to. For TCP &amp; TLS sockets, this id is added to the <code>ipc.of</code> object when the socket is created with a refrence to the socket.</td>
+</tr>
+<tr>
+<td>host</td>
+<td>optional</td>
+<td>is the host on which the TCP or TLS socket resides.  This will default to  <code>ipc.config.networkHost</code> if not specified.</td>
+</tr>
+<tr>
+<td>port</td>
+<td>optional</td>
+<td>the port on which the TCP or TLS socket resides.</td>
+</tr>
+<tr>
+<td>callback</td>
+<td>optional</td>
+<td>this is the function to execute when the socket has been created.</td>
+</tr>
+</tbody>
+</table><p><strong>examples</strong> arguments can be ommitted solong as they are still in order.<br>
+So while the default is : (id,host,port,callback), the following examples will still work because they are still in order (id,port,callback) or (id,host,callback) or (id,port) etc.</p>
+
+<pre><code>ipc.connectToNet('world');
+</code></pre>
+
+<p>or using just an id and a callback</p>
+
+<pre><code>ipc.connectToNet(
+    'world',
+    function(){
+        ...
+    }
+);
+</code></pre>
+
+<p>or explicitly setting the host and path</p>
+
+<pre><code>ipc.connectToNet(
+    'world',
+    'myapp.com',serve(path,callback)
+    3435
+);
+</code></pre>
+
+<p>or only explicitly setting port and callback</p>
+
+<pre><code>ipc.connectToNet(
+    'world',
+    3435,
+    function(){
+        ...
+    }
+);
+</code></pre>
+
+<hr><h5>
+<a name="serve" class="anchor" href="#serve"><span class="octicon octicon-link"></span></a>serve</h5>
+
+<p><code>ipc.serve(path,callback);</code>  </p>
+
+<p>Used to create local Unix Socket Server to which Clients can bind. The server can <code>emit</code> events to specific Client Sockets, or <code>broadcast</code> events to all known Client Sockets.   </p>
+
+<table>
+<thead><tr>
+<th>variable</th>
+<th>required</th>
+<th>definition</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>path</td>
+<td>optional</td>
+<td>This is the Unix Domain Socket path to bind to. If not supplied, it will default to : ipc.config.socketRoot + ipc.config.appspace + ipc.config.id;</td>
+</tr>
+<tr>
+<td>callback</td>
+<td>optional</td>
+<td>This is a function to be called after the Server has started. This can also be done by binding an event to the start event like <code>ipc.server.on('start',function(){});</code>
+</td>
+</tr>
+</tbody>
+</table><p><strong><em>examples</em></strong> arguments can be ommitted solong as they are still in order.</p>
+
+<pre><code>ipc.serve();
+</code></pre>
+
+<p>or specifying callback</p>
+
+<pre><code>ipc.serve(
+    function(){...}
+);
+</code></pre>
+
+<p>or specify path</p>
+
+<pre><code>ipc.serve(
+    '/tmp/myapp.myservice'
+);
+</code></pre>
+
+<p>or specifying everything</p>
+
+<pre><code>ipc.serve(
+    '/tmp/myapp.myservice',
+    function(){...}
+);
+</code></pre>
+
+<hr><h5>
+<a name="servenet" class="anchor" href="#servenet"><span class="octicon octicon-link"></span></a>serveNet</h5>
+
+<p><code>serveNet(host,port,UDPType,callback)</code></p>
+
+<p>Used to create TCP, TLS or UDP Socket Server to which Clients can bind or other servers can send data to. The server can <code>emit</code> events to specific Client Sockets, or <code>broadcast</code> events to all known Client Sockets. </p>
+
+<table>
+<thead><tr>
+<th>variable</th>
+<th>required</th>
+<th>definition</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>host</td>
+<td>optional</td>
+<td>If not specified this defaults to localhost. For TCP, TLS &amp; UDP servers this is most likely going to be localhost or 0.0.0.0 unless you have something like <a href="https://github.com/RIAEvangelist/node-http-server">node-http-server</a> installed to run subdomains for you.</td>
+</tr>
+<tr>
+<td>port</td>
+<td>optional</td>
+<td>The port on which the TCP, UDP, or TLS Socket server will be bound, this defaults to 8000 if not specified</td>
+</tr>
+<tr>
+<td>UDPType</td>
+<td>optional</td>
+<td>If set this will create the server as a UDP socket. 'udp4' or 'udp6' are valid values. This defaults to not being set.</td>
+</tr>
+<tr>
+<td>callback</td>
+<td>optional</td>
+<td>Function to be called when the server is created</td>
+</tr>
+</tbody>
+</table><p><strong><em>examples</em></strong> arguments can be ommitted solong as they are still in order.</p>
+
+<p>default tcp server</p>
+
+<pre><code>ipc.serveNet();
+</code></pre>
+
+<p>default udp server</p>
+
+<pre><code>ipc.serveNet('udp4');
+</code></pre>
+
+<p>or specifying TCP server with callback</p>
+
+<pre><code>ipc.serveNet(
+    function(){...}
+);
+</code></pre>
+
+<p>or specifying UDP server with callback</p>
+
+<pre><code>ipc.serveNet(
+    'udp4',
+    function(){...}
+);
+</code></pre>
+
+<p>or specify port</p>
+
+<pre><code>ipc.serveNet(
+    3435
+);
+</code></pre>
+
+<p>or specifying everything TCP</p>
+
+<pre><code>ipc.serveNet(
+    'MyMostAwesomeApp.com',
+    3435,
+    function(){...}
+);
+</code></pre>
+
+<p>or specifying everything UDP</p>
+
+<pre><code>ipc.serveNet(
+    'MyMostAwesomeApp.com',
+    3435,
+    'udp4',
+    function(){...}
+);
+</code></pre>
+
+<hr><h3>
+<a name="ipc-stores-and-default-variables" class="anchor" href="#ipc-stores-and-default-variables"><span class="octicon octicon-link"></span></a>IPC Stores and Default Variables</h3>
+
+<p><code>ipc.of</code></p>
+
+<p>This is where socket connection refrences will be stored when connecting to them as a client via the <code>ipc.connectTo</code> or <code>iupc.connectToNet</code>.</p>
+
+<p><strong><em>example</em></strong></p>
+
+<pre><code>ipc.connectTo(
+    'world',
+    function(){
+
+        ipc.of.world.on(
+            'message',
+            function(data){...}
+        );
+
+    }
+);
+</code></pre>
+
+<hr><p><code>ipc.config</code>  </p>
 
 <p>Set these variables in the <code>ipc.config</code> scope to overwrite or set default values.</p>
 
@@ -132,203 +503,7 @@
 <td>this is the time in milliseconds a client will wait before trying to reconnect to a server if the connection is lost. This does not effect UDP sockets since they do not have a client server relationship like Unix Sockets and TCP Sockets.</td>
 </tr>
 </tbody>
-</table><hr><h4>
-<a name="ipc-methods" class="anchor" href="#ipc-methods"><span class="octicon octicon-link"></span></a>IPC Methods</h4>
-
-<p>These methods are available in the IPC Scope.  </p>
-
-<hr><h5>
-<a name="log" class="anchor" href="#log"><span class="octicon octicon-link"></span></a>log</h5>
-
-<p><code>ipc.log(a,b,c,d,e...);</code>  </p>
-
-<p>ipc.log will accept any number of arguments and if <code>ipc.config.silent</code> is not set, it will concat them all with a sincle space ' ' between them and then log them to the console. This is fast because it prevents any concation from happening if the ipc is set to silent. That way if you leave your logging in place it should not effect performance.</p>
-
-<p>the log also supports <a href="https://github.com/Marak/colors.js">colors</a> implementation. All of the available styles are supported and the theme styles are as follows :</p>
-
-<pre><code>{
-    good    : 'green',
-    notice  : 'yellow',
-    warn    : 'red',
-    error   : 'redBG',
-    debug   : 'magenta',
-    variable: 'cyan',
-    data    : 'blue'
-}    
-</code></pre>
-
-<p>You can override any of these settings by requireing colors and setting the theme as follows :</p>
-
-<pre><code>var colors=require('colors');
-
-colors.setTheme(
-    {
-        good    : 'zebra',
-        notice  : 'redBG',
-        ...
-    }    
-);
-</code></pre>
-
-<hr><h5>
-<a name="connectto" class="anchor" href="#connectto"><span class="octicon octicon-link"></span></a>connectTo</h5>
-
-<p><code>ipc.connectTo(id,path,callback);</code>  </p>
-
-<p>Used for connecting as a client to local Unix Sockets. <strong><em>This is the fastst way for processes on the same machine to communicate</em></strong> because it bypasses the network card which TCP and UDP must both use.</p>
-
-<ol>
-<li>
-<code>id</code> <strong><em>required</em></strong> is the string id of the socket being connected to. The socket with this id is added to the ipc.of object when created.</li>
-<li>
-<code>path</code> <strong><em>optional</em></strong> is the path of the Unix Domain Socket File, if not set this will be defaylted to <code>ipc.config.socketRoot</code>+<code>ipc.config.appspace</code>+<code>id</code> </li>
-<li>
-<code>callback</code> <strong><em>optional</em></strong> this is the function to execute when the socket has been created.</li>
-</ol><p><strong>examples</strong></p>
-
-<pre><code>ipc.connectTo('world');
-</code></pre>
-
-<p>or using just an id and a callback</p>
-
-<pre><code>ipc.connectTo(
-    'world',
-    function(){
-        ipc.of.world.on(
-            'hello',
-            function(data){
-                ipc.log(data.debug); 
-                //if data was a string, it would have the color set to the debug style applied to it
-            }
-        )
-    }
-);
-</code></pre>
-
-<p>or explicitly setting the path</p>
-
-<pre><code>ipc.connectTo(
-    'world',
-    'myapp.world'
-);
-</code></pre>
-
-<p>or explicitly setting the path with callback</p>
-
-<pre><code>ipc.connectTo(
-    'world',
-    'myapp.world',
-    function(){
-        ...
-    }
-);
-</code></pre>
-
-<hr><h5>
-<a name="connecttonet" class="anchor" href="#connecttonet"><span class="octicon octicon-link"></span></a>connectToNet</h5>
-
-<p><code>ipc.connectToNet(id,host,port,callback)</code>  </p>
-
-<p>Used to connect as a client to a TCP or TLS socket via the network card. This can be local or remote, if local, it is recommended that you use the Unix Socket Implementaion of <code>connectTo</code> instead as it is much faster since it avoids the network card alltogether.</p>
-
-<ol>
-<li>
-<code>id</code> <strong><em>required</em></strong> is the string id of the socket being connected to. For TCP &amp; TLS sockets, this id is added to the <code>ipc.of</code> object when the socket is created with a refrence to the socket.</li>
-<li>
-<code>host</code> <strong><em>optional</em></strong> is the host on which the TCP or TLS socket resides.  This will default to  <code>ipc.config.networkHost</code> if not specified.</li>
-<li>
-<code>port</code> <strong><em>optional</em></strong>
-</li>
-<li>
-<code>callback</code> <strong><em>optional</em></strong> this is the function to execute when the socket has been created.</li>
-</ol><p><strong>examples</strong> arguments can be ommitted solong as they are still in order.<br>
-So while the default is : (id,host,port,callback), the following examples will still work because they are still in order (id,port,callback) or (id,host,callback) or (id,port) etc.</p>
-
-<pre><code>ipc.connectToNet('world');
-</code></pre>
-
-<p>or using just an id and a callback</p>
-
-<pre><code>ipc.connectToNet(
-    'world',
-    function(){
-        ...
-    }
-);
-</code></pre>
-
-<p>or explicitly setting the host and path</p>
-
-<pre><code>ipc.connectToNet(
-    'world',
-    'myapp.com',serve(path,callback)
-    3435
-);
-</code></pre>
-
-<p>or only explicitly setting port and callback</p>
-
-<pre><code>ipc.connectToNet(
-    'world',
-    3435,
-    function(){
-        ...
-    }
-);
-</code></pre>
-
-<hr><h5>
-<a name="serve" class="anchor" href="#serve"><span class="octicon octicon-link"></span></a>serve</h5>
-
-<p><code>ipc.serve(path,callback);</code>  </p>
-
-<p>Used to create local Unix Socket Server to which Clients can bind. The server can <code>emit</code> events to specific Client Sockets, or <code>broadcast</code> events to all known Client Sockets.   </p>
-
-<ol>
-<li>
-<code>path</code> <strong><em>optional</em></strong> This is the Unix Domain Socket path to bind to. If not supplied, it will default to : ipc.config.socketRoot + ipc.config.appspace + ipc.config.id;</li>
-<li>
-<p><code>callback</code> <strong><em>optional</em></strong> This is a function to be called after the Server has started. This can also be done by binding an event to the start event as follows :</p>
-
-<p>ipc.server.on(
-    'start',
-    callback
-);</p>
-</li>
-</ol><p><strong><em>examples</em></strong></p>
-
-<pre><code>ipc.serve();
-</code></pre>
-
-<p>or specifying callback</p>
-
-<pre><code>ipc.serve(
-    function(){...}
-);
-</code></pre>
-
-<p>or specify path</p>
-
-<pre><code>ipc.serve(
-    '/tmp/myapp.myservice'
-);
-</code></pre>
-
-<p>or specifying everything</p>
-
-<pre><code>ipc.serve(
-    '/tmp/myapp.myservice',
-    function(){...}
-);
-</code></pre>
-
-<hr><h5>
-<a name="servenet" class="anchor" href="#servenet"><span class="octicon octicon-link"></span></a>serveNet</h5>
-
-<p>coming soon ...
-For TCP, TLS &amp; UDP servers this is most likely going to be local host or 0.0.0.0 unless you have something like <a href="https://github.com/RIAEvangelist/node-http-server">node-http-server</a> installed to run subdomains for you.</p>
-
-<hr><h3>
+</table><hr><h3>
 <a name="basic-examples" class="anchor" href="#basic-examples"><span class="octicon octicon-link"></span></a>Basic Examples</h3>
 
 <h4>
@@ -347,7 +522,7 @@ ipc.serve(
             'message',
             function(data,socket){
                 ipc.log('got a message : '.debug, data);
-                socket.emit(
+                ipc.server.emit(
                     'message',
                     data+' world!'
                 );
@@ -491,7 +666,17 @@ ipc.server.start();
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-48524110-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
