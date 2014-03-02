@@ -101,7 +101,72 @@ A great solution for <strong>Neural Networking</strong> in Node.JS</p>
 </tbody>
 </table><p><strong>Windows</strong> users may want to use UDP servers for the fastest local IPC. Unix Servers are the fastest oprion on Linux and Mac, but not available for windows.  </p>
 
-<hr><h4>
+<hr><p><code>ipc.config</code>  </p>
+
+<p>Set these variables in the <code>ipc.config</code> scope to overwrite or set default values.</p>
+
+<pre><code>{
+    appspace        : 'app.',
+    socketRoot      : '/tmp/',
+    id              : os.hostname(),
+    networkHost     : 'localhost',
+    networkPort     : 8000,
+    encoding        : 'utf8',
+    silent          : false,
+    maxConnections  : 100,
+    retry           : 500,
+    stopRetrying    : false
+}
+</code></pre>
+
+<table>
+<thead><tr>
+<th>variable</th>
+<th>documentation</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>appspace</td>
+<td>used for Unix Socket (Unix Domain Socket) namespacing. If not set specifically, the Unix Domain Socket will combine the socketRoot, appspace, and id to form the Unix Socket Path for creation or binding. This is available incase you have many apps running on your system, you may have several sockets with the same id, but if you change the appspace, you will still have app specic unique sockets.</td>
+</tr>
+<tr>
+<td>socketRoot</td>
+<td>the directory in which to create or bind to a Unix Socket</td>
+</tr>
+<tr>
+<td>id</td>
+<td>the id of this socket or service</td>
+</tr>
+<tr>
+<td>networkHost</td>
+<td>the local or remote host on which TCP, TLS or UDP Sockets should connect</td>
+</tr>
+<tr>
+<td>networkPort</td>
+<td>the default port on which TCP, TLS, or UDP sockets should connect</td>
+</tr>
+<tr>
+<td>encoding</td>
+<td>the default encoding for data sent on sockets</td>
+</tr>
+<tr>
+<td>silent</td>
+<td>turn on/off logging default is false which means logging is on</td>
+</tr>
+<tr>
+<td>maxConnections</td>
+<td>this is the max number of connections allowed to a socket. It is currently only being set on Unix Sockets. Other Socket types are using the system defaults.</td>
+</tr>
+<tr>
+<td>retry</td>
+<td>this is the time in milliseconds a client will wait before trying to reconnect to a server if the connection is lost. This does not effect UDP sockets since they do not have a client server relationship like Unix Sockets and TCP Sockets.</td>
+</tr>
+<tr>
+<td>stopRetrying</td>
+<td>Defaults to false mwaning clients will continue to retryt to connect to servers indefinately at the retry interval. If set to any number the client will stop retrying when that number is exceeded after each disconnect. If set to 0, the client will <strong><em>NOT</em></strong> try to reconnect.</td>
+</tr>
+</tbody>
+</table><hr><h4>
 <a name="ipc-methods" class="anchor" href="#ipc-methods"><span class="octicon octicon-link"></span></a>IPC Methods</h4>
 
 <p>These methods are available in the IPC Scope.  </p>
@@ -467,67 +532,7 @@ So while the default is : (id,host,port,callback), the following examples will s
 );
 </code></pre>
 
-<hr><p><code>ipc.config</code>  </p>
-
-<p>Set these variables in the <code>ipc.config</code> scope to overwrite or set default values.</p>
-
-<pre><code>{
-    appspace        : 'app.',
-    socketRoot      : '/tmp/',
-    id              : os.hostname(),
-    networkHost     : 'localhost',
-    networkPort     : 8000,
-    encoding        : 'utf8',
-    silent          : false,
-    maxConnections  : 100,
-    retry           : 500
-}
-</code></pre>
-
-<table>
-<thead><tr>
-<th>variable</th>
-<th>documentation</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>appspace</td>
-<td>used for Unix Socket (Unix Domain Socket) namespacing. If not set specifically, the Unix Domain Socket will combine the socketRoot, appspace, and id to form the Unix Socket Path for creation or binding. This is available incase you have many apps running on your system, you may have several sockets with the same id, but if you change the appspace, you will still have app specic unique sockets.</td>
-</tr>
-<tr>
-<td>socketRoot</td>
-<td>the directory in which to create or bind to a Unix Socket</td>
-</tr>
-<tr>
-<td>id</td>
-<td>the id of this socket or service</td>
-</tr>
-<tr>
-<td>networkHost</td>
-<td>the local or remote host on which TCP, TLS or UDP Sockets should connect</td>
-</tr>
-<tr>
-<td>networkPort</td>
-<td>the default port on which TCP, TLS, or UDP sockets should connect</td>
-</tr>
-<tr>
-<td>encoding</td>
-<td>the default encoding for data sent on sockets</td>
-</tr>
-<tr>
-<td>silent</td>
-<td>turn on/off logging default is false which means logging is on</td>
-</tr>
-<tr>
-<td>maxConnections</td>
-<td>this is the max number of connections allowed to a socket. It is currently only being set on Unix Sockets. Other Socket types are using the system defaults.</td>
-</tr>
-<tr>
-<td>retry</td>
-<td>this is the time in milliseconds a client will wait before trying to reconnect to a server if the connection is lost. This does not effect UDP sockets since they do not have a client server relationship like Unix Sockets and TCP Sockets.</td>
-</tr>
-</tbody>
-</table><hr><h3>
+<hr><h3>
 <a name="basic-examples" class="anchor" href="#basic-examples"><span class="octicon octicon-link"></span></a>Basic Examples</h3>
 
 <h4>
